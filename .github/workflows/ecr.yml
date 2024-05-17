@@ -37,7 +37,7 @@ jobs:
             aws ecr batch-delete-image --repository-name nodejs_appplication_repo --image-ids imageDigest=$IMAGE_ID
           done
 
-      - name: Build and push Nodejs-app Docker image
+      - name: Build and push Nodejs-app Docker images
         env:
           IMAGE_TAG: latest
         working-directory: Nodejs_Module
