@@ -1,16 +1,27 @@
-name: Nodejs Docker Push
-on: 
-  push: 
+name: Docker image build and publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      path_to_dockerfile:
+        description: Path to the dockerfile (default = 'Dockerfile')
+        default: "e2e-test/artifact.dockerfile"
+        type: string
+      docker_build_dir:
+        description: Docker build directory (default = '.')
+        default: "e2e-test"
+        type: string
+  push:
     branches: [ "main" ]
-  
+
 jobs:
   Nodejs-Test:
     name: Build Docker Image
-    runs-on: ubuntu-latest  
-    steps:  
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout
-        uses: actions/checkout@v2    
-          
+        uses: actions/checkout@v2
+
       - name: Setup AWS ECR Details
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -28,5 +39,5 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO }}
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./Nodejs_Module
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ${{ github.event.inputs.path_to_dockerfile || 'Dockerfile' }} ${{ github.event.inputs.docker_build_dir || '.' }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
