@@ -19,11 +19,15 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{secrets.AWS_REGION}}
+          aws-region: ${{ secrets.AWS_REGION }}
       
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Delete existing Docker image in ECR
+        run: |
+          aws ecr batch-delete-image --repository-name nodejs_appplication_repo --image-ids $(aws ecr describe-images --repository-name nodejs_appplication_repo --query 'imageDetails[*].[imageDigest]' --output text)
 
       - name: Build and push Nodejs-app Docker image
         env:
