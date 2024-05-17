@@ -25,9 +25,17 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Get existing image IDs
+        id: get-image-ids
+        run: |
+          IMAGE_IDS=$(aws ecr describe-images --repository-name nodejs_appplication_repo --query 'imageDetails[*].[imageDigest]' --output text)
+          echo "::set-output name=image_ids::$IMAGE_IDS"
+
       - name: Delete existing Docker image in ECR
         run: |
-          aws ecr batch-delete-image --repository-name nodejs_appplication_repo --image-ids $(aws ecr describe-images --repository-name nodejs_appplication_repo --query 'imageDetails[*].[imageDigest]' --output text)
+          for IMAGE_ID in ${{ steps.get-image-ids.outputs.image_ids }}; do
+            aws ecr batch-delete-image --repository-name nodejs_appplication_repo --image-ids imageDigest=$IMAGE_ID
+          done
 
       - name: Build and push Nodejs-app Docker image
         env:
