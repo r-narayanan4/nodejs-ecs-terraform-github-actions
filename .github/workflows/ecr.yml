@@ -5,11 +5,11 @@ on:
     inputs:
       path_to_dockerfile:
         description: Path to the dockerfile (default = 'Dockerfile')
-        default: "e2e-test/artifact.dockerfile"
+        default: "Nodejs_Module/Dockerfile"
         type: string
       docker_build_dir:
         description: Docker build directory (default = '.')
-        default: "e2e-test"
+        default: "Nodejs_Module"
         type: string
   push:
     branches: [ "main" ]
@@ -39,5 +39,5 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPO }}
           IMAGE_TAG: latest
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ${{ github.event.inputs.path_to_dockerfile || 'Dockerfile' }} ${{ github.event.inputs.docker_build_dir || '.' }}
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f "${{ github.event.inputs.path_to_dockerfile || 'Nodejs_Module/Dockerfile' }}" "${{ github.event.inputs.docker_build_dir || 'Nodejs_Module' }}"
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
